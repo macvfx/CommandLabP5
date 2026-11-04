@@ -1,6 +1,6 @@
 # P5 Command Lab User Guide
 
-This is the canonical operating guide for P5 Command Lab 0.1.1.
+This is the canonical operating guide for P5 Command Lab 0.2.0.
 
 ## Purpose and safety boundary
 
@@ -8,7 +8,7 @@ P5 Command Lab demonstrates the shape of Archiware P5 REST API and `nsdchat`
 commands before optionally running them. Previewing, copying, editing, or saving
 a recipe does not contact a server.
 
-The built-in recipes are read-only. Custom recipes can use arbitrary REST
+The built-in and validated imported recipes are read-only. Custom recipes can use arbitrary REST
 methods or `nsdchat` verbs. The app therefore asks for confirmation before
 running a custom recipe, but it cannot prove that the command is safe.
 
@@ -165,6 +165,25 @@ comma-separated variables.
 Custom recipes are stored locally. Before execution, P5 Command Lab explains
 that it cannot classify an arbitrary recipe as read-only and asks for explicit
 confirmation.
+
+## Import read-only command packs
+
+Choose **Demo > Import Read-only Command Pack…** or **Import Pack…** beside the
+recipe picker, then select a JSON pack. Imported recipes appear in a section
+named for that pack. Importing the same stable pack id again replaces its older
+version; **Remove Pack** removes the whole selected pack.
+
+Version 0.2.0 deliberately accepts only recipes marked `read-only`. REST
+recipes must use `GET`; reserved authentication/host headers, unknown template
+placeholders, absolute REST URLs, parent-path traversal, duplicate command
+UUIDs, and unsupported schema versions are rejected. Review the displayed
+source attribution and constructed command before running it.
+
+The repository includes
+[`P5-Read-Only-Comparisons.json`](../CommandPacks/P5-Read-Only-Comparisons.json)
+as an importable starting pack. See the
+[Command Pack Format](COMMAND_PACK_FORMAT.md) and
+[Command Catalog](COMMAND_CATALOG.md) for authoring and candidate details.
 
 ## Transcript export
 

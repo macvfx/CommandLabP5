@@ -175,6 +175,9 @@ struct P5CommandLabHelpView: View {
             HelpSection(title: "Custom recipes", icon: "slider.horizontal.3") {
                 Text("A custom REST recipe stores a relative path and HTTP method. A custom nsdchat recipe stores the arguments after -c. Variables use braces, such as {volume} or {path}.")
             }
+            HelpSection(title: "Read-only command packs", icon: "shippingbox") {
+                Text("Choose Demo > Import Read-only Command Pack to load a versioned JSON pack. Imported commands are grouped by pack and may run only after the app validates their schema, placeholders, reserved headers, safety classification, and GET-only REST methods. Importing a pack with the same id replaces its earlier version.")
+            }
             HelpSection(title: "Transcript export", icon: "doc.text") {
                 Text("Export writes the visible console history to a text file. Review it before sharing because server responses may contain paths, hostnames, job metadata, or archive identifiers.")
             }
@@ -184,7 +187,7 @@ struct P5CommandLabHelpView: View {
     private var privacy: some View {
         Group {
             HelpSection(title: "Stored locally", icon: "hand.raised.fill") {
-                Text("Profiles, custom recipes, and explicitly trusted certificate fingerprints are stored in this user's app preferences. Passwords are stored separately in macOS Keychain. P5 Command Lab does not collect analytics, diagnostics, or usage information.")
+                Text("Profiles, custom recipes, imported command packs, and explicitly trusted certificate fingerprints are stored in this user's app preferences. Passwords are stored separately in macOS Keychain. P5 Command Lab does not collect analytics, diagnostics, or usage information.")
             }
             HelpSection(title: "Network activity", icon: "antenna.radiowaves.left.and.right") {
                 Text("Previewing and copying commands do not contact P5. Checking a certificate or running a recipe contacts only the configured server. Help, source, and support links contact their destinations only when selected.")

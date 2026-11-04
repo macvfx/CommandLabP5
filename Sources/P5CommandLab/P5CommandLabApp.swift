@@ -13,6 +13,9 @@ struct P5CommandLabApp: App {
             P5CommandLabCommands()
             CommandGroup(replacing: .newItem) { }
             CommandMenu("Demo") {
+                Button("Import Read-only Command Pack…") { model.importCommandPack() }
+                    .keyboardShortcut("i", modifiers: [.command, .shift])
+                Divider()
                 Button("Run Selected Command") { model.requestRun() }
                     .keyboardShortcut("r", modifiers: [.command])
                 Button("Copy Command Preview") { model.copyPreview() }

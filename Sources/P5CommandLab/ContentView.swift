@@ -239,6 +239,13 @@ struct ContentView: View {
                                 Text(recipe.transportLabeledName).tag(recipe.id)
                             }
                         }
+                        ForEach(model.importedPacks) { pack in
+                            Section(pack.title) {
+                                ForEach(pack.recipes) { recipe in
+                                    Text(recipe.transportLabeledName).tag(recipe.id)
+                                }
+                            }
+                        }
                         if !model.customRecipes.isEmpty {
                             Section("Custom") {
                                 ForEach(model.customRecipes) { recipe in
@@ -255,14 +262,30 @@ struct ContentView: View {
                         .background(commandAccent.opacity(0.12), in: Capsule())
                         .overlay(Capsule().stroke(commandAccent.opacity(0.3)))
                     Spacer()
+                    Button("Import Pack…", action: model.importCommandPack)
                     Button("New Custom…") { model.showingCustomRecipe = true }
-                    if !model.selectedRecipe.isBuiltIn {
+                    if model.selectedRecipe.isImported {
+                        Button("Remove Pack", role: .destructive, action: model.removeSelectedPack)
+                    } else if !model.selectedRecipe.isBuiltIn {
                         Button("Delete Custom", role: .destructive, action: model.deleteSelectedRecipe)
                     }
                 }
                 Text(model.selectedRecipe.summary)
                     .font(.callout)
                     .foregroundStyle(.secondary)
+                if model.selectedRecipe.isImported {
+                    HStack(spacing: 8) {
+                        Label("Imported · read-only", systemImage: "shippingbox.and.arrow.backward")
+                            .font(.caption.bold())
+                            .foregroundStyle(.green)
+                        if let category = model.selectedRecipe.category { Text(category).font(.caption).foregroundStyle(.secondary) }
+                        if let sourceTitle = model.selectedRecipe.sourceTitle,
+                           let sourceValue = model.selectedRecipe.sourceURL,
+                           let sourceURL = URL(string: sourceValue) {
+                            Link(sourceTitle, destination: sourceURL).font(.caption)
+                        }
+                    }
+                }
 
                 if model.selectedRecipe.transport == .nsdchat {
                     Picker("Connection", selection: $model.cliConnection) {
@@ -307,7 +330,7 @@ struct ContentView: View {
                         .toggleStyle(.checkbox)
                     Spacer()
                     Button("Copy", action: model.copyPreview)
-                    Button(model.isRunning ? "Running…" : (model.selectedRecipe.isBuiltIn ? "Run Read-only Command" : "Run Custom Command…"), action: model.requestRun)
+                    Button(model.isRunning ? "Running…" : (model.selectedRecipe.effectiveEffect == .readOnly ? "Run Read-only Command" : "Run Custom Command…"), action: model.requestRun)
                         .buttonStyle(.borderedProminent)
                         .tint(commandAccent)
                         .disabled(model.isRunning)

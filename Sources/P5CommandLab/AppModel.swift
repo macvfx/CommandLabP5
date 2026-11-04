@@ -1,6 +1,7 @@
 import AppKit
 import Foundation
 import P5CommandLabCore
+import UniformTypeIdentifiers
 
 enum CredentialState: Equatable {
     case missing
@@ -26,6 +27,7 @@ final class AppModel: ObservableObject {
     @Published var password: String
     @Published var credentialState: CredentialState
     @Published var customRecipes: [CommandRecipe]
+    @Published var importedPacks: [CommandPack]
     @Published var selectedRecipeID: UUID
     @Published var values: [String: String] = [:]
     @Published var cliConnection: CLIConnection = .local
@@ -40,10 +42,12 @@ final class AppModel: ObservableObject {
 
     private let profilesKey = "serverProfiles.v1"
     private let customRecipesKey = "customRecipes.v1"
+    private let importedPacksKey = "commandPacks.v1"
 
     init() {
         let loadedProfiles: [ServerProfile] = Self.load(profilesKey) ?? [ServerProfile()]
         let loadedCustom: [CommandRecipe] = Self.load(customRecipesKey) ?? []
+        let loadedPacks: [CommandPack] = Self.load(importedPacksKey) ?? []
         profiles = loadedProfiles
         profile = loadedProfiles[0]
         selectedProfileID = loadedProfiles[0].id
@@ -59,11 +63,12 @@ final class AppModel: ObservableObject {
             credentialState = .error(KeychainStore.message(for: status))
         }
         customRecipes = loadedCustom
+        importedPacks = loadedPacks.compactMap { try? CommandPackLoader.validate($0) }
         selectedRecipeID = BuiltInRecipes.all[0].id
         resetValues()
     }
 
-    var recipes: [CommandRecipe] { BuiltInRecipes.all + customRecipes }
+    var recipes: [CommandRecipe] { BuiltInRecipes.all + importedPacks.flatMap(\.recipes) + customRecipes }
 
     var selectedRecipe: CommandRecipe {
         recipes.first(where: { $0.id == selectedRecipeID }) ?? BuiltInRecipes.all[0]
@@ -191,8 +196,42 @@ final class AppModel: ObservableObject {
         append("Saved custom recipe “\(recipe.name)”.")
     }
 
+    func importCommandPack() {
+        let panel = NSOpenPanel()
+        panel.title = "Import Read-only Command Pack"
+        panel.message = "Choose a P5 Command Lab JSON pack. Version 0.2 accepts validated read-only commands only."
+        panel.allowedContentTypes = [.json]
+        panel.allowsMultipleSelection = false
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        do {
+            let pack = try CommandPackLoader.decode(Data(contentsOf: url))
+            importedPacks.removeAll { $0.id == pack.id }
+            importedPacks.append(pack)
+            importedPacks.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+            persistImportedPacks()
+            if let first = pack.recipes.first { selectRecipe(first.id) }
+            append("Imported read-only command pack “\(pack.title)” \(pack.version) with \(pack.recipes.count) commands.")
+        } catch {
+            let alert = NSAlert()
+            alert.alertStyle = .warning
+            alert.messageText = "Command pack was not imported"
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
+            append("ERROR  Could not import command pack: \(error.localizedDescription)")
+        }
+    }
+
+    func removeSelectedPack() {
+        guard let packID = selectedRecipe.packID,
+              let pack = importedPacks.first(where: { $0.id == packID }) else { return }
+        importedPacks.removeAll { $0.id == packID }
+        persistImportedPacks()
+        selectRecipe(BuiltInRecipes.all[0].id)
+        append("Removed command pack “\(pack.title)”.")
+    }
+
     func deleteSelectedRecipe() {
-        guard !selectedRecipe.isBuiltIn else { return }
+        guard !selectedRecipe.isBuiltIn, !selectedRecipe.isImported else { return }
         customRecipes.removeAll { $0.id == selectedRecipeID }
         persistCustomRecipes()
         selectRecipe(BuiltInRecipes.all[0].id)
@@ -205,7 +244,7 @@ final class AppModel: ObservableObject {
     }
 
     func requestRun() {
-        if selectedRecipe.isBuiltIn {
+        if selectedRecipe.effectiveEffect == .readOnly {
             runConfirmed()
         } else {
             showingCustomExecutionWarning = true
@@ -267,6 +306,7 @@ final class AppModel: ObservableObject {
 
     private func persistProfiles() { Self.save(profiles, key: profilesKey) }
     private func persistCustomRecipes() { Self.save(customRecipes, key: customRecipesKey) }
+    private func persistImportedPacks() { Self.save(importedPacks, key: importedPacksKey) }
 
     private static func load<T: Decodable>(_ key: String) -> T? {
         guard let data = UserDefaults.standard.data(forKey: key) else { return nil }

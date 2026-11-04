@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.0 — 2026-11-04
+
+- Added import and local persistence for versioned JSON command packs.
+- Added strict validation that accepts only explicitly read-only commands and
+  GET-only REST recipes, rejects unsafe headers and malformed placeholders,
+  and replaces an older imported pack sharing the same stable id.
+- Added imported-pack grouping, source attribution, removal, and a clear
+  read-only badge in the command panel.
+- Added a public example pack with REST/nsdchat comparisons for clients,
+  volumes, jobs, jukeboxes, and ArchiveEntry status.
+- Documented the pack schema, initial candidate matrix, and the deferred safety
+  design for mutating commands such as changing a volume mode to Readonly.
+
 ## 0.1.1 — 2026-11-04
 
 - Added P5Kit API examples, the official Archiware REST API reference, the

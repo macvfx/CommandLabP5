@@ -16,6 +16,8 @@ P5 server is not required to preview commands.
   jukeboxes, and ArchiveEntry handle lookup.
 - Saved server profiles, Keychain passwords, custom recipes, and transcript
   export.
+- Versioned JSON command-pack import with strict read-only validation and
+  replacement by stable pack identifier.
 - Reviewable HTTPS certificates with endpoint-bound SHA-256 pinning for P5's
   self-signed certificate and changed-certificate warnings.
 - Redacted command previews and a confirmation gate for custom commands.
@@ -26,6 +28,8 @@ P5 server is not required to preview commands.
 
 The supplied recipes are read-only. Custom recipes can describe other HTTP
 methods or CLI verbs, so inspect the constructed command before running one.
+Imported packs in 0.2.0 are more restrictive: every recipe must be explicitly
+classified read-only, and REST recipes must use `GET`.
 
 ## Requirements
 
@@ -77,6 +81,9 @@ redact them before sharing.
 
 - [User Guide](Docs/USER_GUIDE.md)
 - [QA Checklist](Docs/QA_CHECKLIST.md)
+- [Command Pack Format](Docs/COMMAND_PACK_FORMAT.md)
+- [Command Catalog and Candidates](Docs/COMMAND_CATALOG.md)
+- [Example Read-only Comparison Pack](CommandPacks/P5-Read-Only-Comparisons.json)
 - [Changelog](CHANGELOG.md)
 - [Issue tracker](https://github.com/macvfx/CommandLabP5/issues)
 - [code.matx.ca](https://code.matx.ca)

@@ -89,6 +89,13 @@ public enum CLIConnection: String, Codable, CaseIterable, Sendable {
     case remote = "Remote over awsock"
 }
 
+public enum RecipeEffect: String, Codable, CaseIterable, Sendable {
+    case readOnly = "read-only"
+    case mutating
+    case startsJob = "starts-job"
+    case unknown
+}
+
 public struct RecipeField: Identifiable, Codable, Hashable, Sendable {
     public var id: String { key }
     public let key: String
@@ -114,6 +121,14 @@ public struct CommandRecipe: Identifiable, Codable, Hashable, Sendable {
     public var headerTemplates: [String: String]
     public var fields: [RecipeField]
     public var isBuiltIn: Bool
+    public var effect: RecipeEffect?
+    public var packID: String?
+    public var category: String?
+    public var comparisonID: String?
+    public var sourceTitle: String?
+    public var sourceURL: String?
+    public var sourceReference: String?
+    public var minimumP5Version: String?
 
     public init(
         id: UUID = UUID(),
@@ -124,7 +139,15 @@ public struct CommandRecipe: Identifiable, Codable, Hashable, Sendable {
         template: String,
         headerTemplates: [String: String] = [:],
         fields: [RecipeField] = [],
-        isBuiltIn: Bool = false
+        isBuiltIn: Bool = false,
+        effect: RecipeEffect? = nil,
+        packID: String? = nil,
+        category: String? = nil,
+        comparisonID: String? = nil,
+        sourceTitle: String? = nil,
+        sourceURL: String? = nil,
+        sourceReference: String? = nil,
+        minimumP5Version: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -135,12 +158,144 @@ public struct CommandRecipe: Identifiable, Codable, Hashable, Sendable {
         self.headerTemplates = headerTemplates
         self.fields = fields
         self.isBuiltIn = isBuiltIn
+        self.effect = effect
+        self.packID = packID
+        self.category = category
+        self.comparisonID = comparisonID
+        self.sourceTitle = sourceTitle
+        self.sourceURL = sourceURL
+        self.sourceReference = sourceReference
+        self.minimumP5Version = minimumP5Version
     }
 
     public var transportLabeledName: String {
         let label = transport == .rest ? "REST" : "nsdchat"
         if name.localizedCaseInsensitiveContains("— \(label)") { return name }
         return "\(name) — \(label)"
+    }
+
+    public var effectiveEffect: RecipeEffect {
+        effect ?? (isBuiltIn ? .readOnly : .unknown)
+    }
+
+    public var isImported: Bool { packID != nil }
+}
+
+public struct CommandPackSource: Codable, Hashable, Sendable {
+    public var title: String
+    public var url: String
+
+    public init(title: String, url: String) {
+        self.title = title
+        self.url = url
+    }
+}
+
+public struct CommandPack: Identifiable, Codable, Hashable, Sendable {
+    public var schemaVersion: Int
+    public var id: String
+    public var title: String
+    public var version: String
+    public var summary: String
+    public var sources: [CommandPackSource]
+    public var recipes: [CommandRecipe]
+
+    public init(schemaVersion: Int = 1, id: String, title: String, version: String, summary: String, sources: [CommandPackSource] = [], recipes: [CommandRecipe]) {
+        self.schemaVersion = schemaVersion
+        self.id = id
+        self.title = title
+        self.version = version
+        self.summary = summary
+        self.sources = sources
+        self.recipes = recipes
+    }
+}
+
+public enum CommandPackError: LocalizedError, Equatable {
+    case unsupportedSchema(Int)
+    case missingPackIdentity
+    case duplicateRecipeID
+    case emptyRecipes
+    case unsafeRecipe(String, RecipeEffect)
+    case nonGETRESTRecipe(String)
+    case reservedHeader(String, String)
+    case invalidTemplate(String, String)
+    case invalidSourceURL(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .unsupportedSchema(let version): return "Command pack schema version \(version) is not supported."
+        case .missingPackIdentity: return "The command pack needs a non-empty id, title, and version."
+        case .duplicateRecipeID: return "Every command in a pack must have a unique UUID."
+        case .emptyRecipes: return "The command pack does not contain any commands."
+        case .unsafeRecipe(let name, let effect): return "“\(name)” is marked \(effect.rawValue). Version 0.2 imports read-only commands only."
+        case .nonGETRESTRecipe(let name): return "“\(name)” uses a REST method other than GET. Version 0.2 imports GET recipes only."
+        case .reservedHeader(let name, let header): return "“\(name)” cannot define the reserved \(header) header."
+        case .invalidTemplate(let name, let detail): return "“\(name)” has an invalid template: \(detail)"
+        case .invalidSourceURL(let value): return "The source URL is invalid: \(value)"
+        }
+    }
+}
+
+public enum CommandPackLoader {
+    public static func decode(_ data: Data) throws -> CommandPack {
+        let pack = try JSONDecoder().decode(CommandPack.self, from: data)
+        return try validate(pack)
+    }
+
+    public static func validate(_ input: CommandPack) throws -> CommandPack {
+        guard input.schemaVersion == 1 else { throw CommandPackError.unsupportedSchema(input.schemaVersion) }
+        guard !input.id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !input.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              !input.version.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            throw CommandPackError.missingPackIdentity
+        }
+        guard !input.recipes.isEmpty else { throw CommandPackError.emptyRecipes }
+        guard Set(input.recipes.map(\.id)).count == input.recipes.count else { throw CommandPackError.duplicateRecipeID }
+        for source in input.sources {
+            guard let url = URL(string: source.url), ["http", "https"].contains(url.scheme?.lowercased() ?? "") else {
+                throw CommandPackError.invalidSourceURL(source.url)
+            }
+        }
+
+        var pack = input
+        for index in pack.recipes.indices {
+            var recipe = pack.recipes[index]
+            guard recipe.effectiveEffect == .readOnly else { throw CommandPackError.unsafeRecipe(recipe.name, recipe.effectiveEffect) }
+            if recipe.transport == .rest && recipe.method.uppercased() != "GET" {
+                throw CommandPackError.nonGETRESTRecipe(recipe.name)
+            }
+            for key in recipe.headerTemplates.keys where ["authorization", "host", "cookie"].contains(key.lowercased()) {
+                throw CommandPackError.reservedHeader(recipe.name, key)
+            }
+            let fieldKeys = Set(recipe.fields.map(\.key))
+            let templates = [recipe.template] + Array(recipe.headerTemplates.values)
+            for template in templates {
+                for token in tokens(in: template) where !fieldKeys.contains(token) {
+                    throw CommandPackError.invalidTemplate(recipe.name, "unknown placeholder {\(token)}")
+                }
+            }
+            if recipe.transport == .rest {
+                let lower = recipe.template.lowercased()
+                if lower.hasPrefix("http://") || lower.hasPrefix("https://") || lower.contains("..") {
+                    throw CommandPackError.invalidTemplate(recipe.name, "REST templates must be relative paths without '..'")
+                }
+            }
+            recipe.isBuiltIn = false
+            recipe.packID = pack.id
+            recipe.effect = .readOnly
+            pack.recipes[index] = recipe
+        }
+        return pack
+    }
+
+    private static func tokens(in template: String) -> [String] {
+        guard let regex = try? NSRegularExpression(pattern: #"(?<!\{)\{([A-Za-z][A-Za-z0-9_-]*)\}(?!\})"#) else { return [] }
+        let range = NSRange(template.startIndex..., in: template)
+        return regex.matches(in: template, range: range).compactMap { match in
+            guard let swiftRange = Range(match.range(at: 1), in: template) else { return nil }
+            return String(template[swiftRange])
+        }
     }
 }
 
