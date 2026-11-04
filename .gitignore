@@ -1,0 +1,7 @@
+.DS_Store
+.build/
+Build/
+Release/
+.signing-local/
+.swiftpm/
+Package.resolved
