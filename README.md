@@ -81,6 +81,16 @@ redact them before sharing.
 - [Issue tracker](https://github.com/macvfx/CommandLabP5/issues)
 - [code.matx.ca](https://code.matx.ca)
 
+## P5 references
+
+- [P5Kit API examples](https://github.com/macvfx/P5Kit-Docs/blob/main/P5_API_EXAMPLES.md) — independent, curated integration examples using fictional data.
+- [Official Archiware P5 REST API](https://www.archiware.com/blog/redoc/p5_rest_api/awp5api.html) — the authoritative REST resource and request reference.
+- [Official P5 CLI/nsdchat manual](https://support.archiware.com/downloads/cli.pdf) — connection forms, commands, arguments, and return values.
+- [Archiware Manuals & Guides](https://www.archiware.com/manuals/) — documentation appropriate to the installed P5 version.
+
+The Archiware references define the supported P5 contract. P5Kit Docs and P5
+Command Lab supplement them with integration and presentation examples.
+
 All sample hosts, users, paths, media, and identifiers in the repository are
 fictional or reserved for documentation.
 

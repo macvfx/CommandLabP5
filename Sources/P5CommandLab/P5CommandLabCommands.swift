@@ -16,6 +16,13 @@ struct P5CommandLabCommands: Commands {
 
             Divider()
 
+            Link("P5Kit API Examples", destination: P5CommandLabLinks.p5KitExamples)
+            Link("Official P5 REST API", destination: P5CommandLabLinks.p5RESTAPI)
+            Link("Official nsdchat CLI Manual", destination: P5CommandLabLinks.p5CLIManual)
+            Link("Archiware Manuals & Guides", destination: P5CommandLabLinks.p5Manuals)
+
+            Divider()
+
             Link("Visit code.matx.ca", destination: P5CommandLabLinks.website)
         }
     }

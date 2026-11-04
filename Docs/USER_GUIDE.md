@@ -1,6 +1,6 @@
 # P5 Command Lab User Guide
 
-This is the canonical operating guide for P5 Command Lab 0.1.
+This is the canonical operating guide for P5 Command Lab 0.1.1.
 
 ## Purpose and safety boundary
 
@@ -235,3 +235,14 @@ information before sharing.
 - [Source](https://github.com/macvfx/CommandLabP5)
 - [Report an issue](https://github.com/macvfx/CommandLabP5/issues)
 - [code.matx.ca](https://code.matx.ca)
+
+### P5 documentation and examples
+
+- [P5Kit API examples](https://github.com/macvfx/P5Kit-Docs/blob/main/P5_API_EXAMPLES.md) provide independent, curated examples using fictional hosts, paths, identifiers, and credentials.
+- [Official Archiware P5 REST API](https://www.archiware.com/blog/redoc/p5_rest_api/awp5api.html) is the authoritative REST resource and request reference.
+- [Official P5 CLI/nsdchat manual](https://support.archiware.com/downloads/cli.pdf) documents local and remote connection forms, commands, arguments, and return values.
+- [Archiware Manuals & Guides](https://www.archiware.com/manuals/) helps locate documentation matching the P5 version installed at the site.
+
+The official Archiware documentation is the authority for supported behavior.
+P5Kit examples and this guide explain integration patterns and do not replace
+the vendor contract.

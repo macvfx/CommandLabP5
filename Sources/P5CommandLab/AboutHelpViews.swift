@@ -65,6 +65,7 @@ struct P5CommandLabHelpView: View {
         case transports = "REST & nsdchat"
         case output = "Output & Recipes"
         case privacy = "Privacy & Help"
+        case references = "References"
         var id: Self { self }
     }
 
@@ -108,6 +109,7 @@ struct P5CommandLabHelpView: View {
                     case .transports: transports
                     case .output: output
                     case .privacy: privacy
+                    case .references: references
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -193,6 +195,30 @@ struct P5CommandLabHelpView: View {
             HelpSection(title: "More help", icon: "questionmark.circle") {
                 Text("Use the Full User Guide for complete procedures and troubleshooting, or Report an Issue from the Help menu.")
                 Link("Report an Issue", destination: P5CommandLabLinks.issues)
+            }
+        }
+    }
+
+    private var references: some View {
+        Group {
+            HelpSection(title: "P5Kit API examples", icon: "curlybraces.square") {
+                Text("Curated, fictional REST request examples and integration notes from the independent P5Kit documentation project.")
+                Link("Open P5Kit API Examples", destination: P5CommandLabLinks.p5KitExamples)
+            }
+            HelpSection(title: "Official P5 REST API", icon: "network") {
+                Text("Archiware's authoritative REST resource and request reference. Check it against the API version enabled on the server.")
+                Link("Open P5 REST API Reference", destination: P5CommandLabLinks.p5RESTAPI)
+            }
+            HelpSection(title: "Official nsdchat CLI manual", icon: "terminal") {
+                Text("Archiware's command-line reference for nsdchat connection forms, resources, methods, arguments, and return values.")
+                Link("Open P5 CLI Manual", destination: P5CommandLabLinks.p5CLIManual)
+            }
+            HelpSection(title: "Manuals for the installed version", icon: "books.vertical") {
+                Text("Use the Archiware manuals hub to locate documentation appropriate to the P5 version installed at the site.")
+                Link("Open Archiware Manuals & Guides", destination: P5CommandLabLinks.p5Manuals)
+            }
+            HelpSection(title: "Which source is authoritative?", icon: "checkmark.seal") {
+                Text("Archiware's manuals define the supported P5 contract. P5Kit examples and P5 Command Lab supplement those manuals with integration and presentation examples; they do not replace vendor documentation.")
             }
         }
     }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-11-04
+
+- Added P5Kit API examples, the official Archiware REST API reference, the
+  official nsdchat CLI manual, and the Archiware manuals hub to the README,
+  User Guide, Help menu, and a dedicated in-app References topic.
+- Clarified which references are authoritative vendor documentation and which
+  are independent integration examples.
+
 ## 0.1.0 — 2026-11-04
 
 Initial public release candidate.
