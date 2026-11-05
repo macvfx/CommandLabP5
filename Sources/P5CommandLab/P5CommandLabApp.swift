@@ -13,6 +13,8 @@ struct P5CommandLabApp: App {
             P5CommandLabCommands()
             CommandGroup(replacing: .newItem) { }
             CommandMenu("Demo") {
+                P5CommandLabOpenWindowButton(label: "Install Archiware P5…", windowID: "p5-installer")
+                Divider()
                 Button("Import Read-only Command Pack…") { model.importCommandPack() }
                     .keyboardShortcut("i", modifiers: [.command, .shift])
                 Divider()
@@ -38,6 +40,11 @@ struct P5CommandLabApp: App {
 
         Window("P5 Command Lab Help", id: "help") {
             P5CommandLabHelpView()
+        }
+        .windowResizability(.contentSize)
+
+        Window("Install Archiware P5", id: "p5-installer") {
+            P5InstallerDownloadView()
         }
         .windowResizability(.contentSize)
     }

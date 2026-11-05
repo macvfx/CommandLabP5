@@ -28,7 +28,7 @@ struct P5CommandLabCommands: Commands {
     }
 }
 
-private struct P5CommandLabOpenWindowButton: View {
+struct P5CommandLabOpenWindowButton: View {
     let label: String
     let windowID: String
     @Environment(\.openWindow) private var openWindow

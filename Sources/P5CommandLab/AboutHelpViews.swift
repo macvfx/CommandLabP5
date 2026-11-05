@@ -29,7 +29,7 @@ struct AboutP5CommandLabView: View {
                 .frame(maxWidth: 390)
 
             Label {
-                Text("Server profiles and reviewed certificate fingerprints stay on this Mac, and passwords are stored in Keychain. The app contacts a configured P5 server only when you check a certificate or run a command. It has no analytics, updater, account, or background service.")
+                Text("Server profiles and reviewed certificate fingerprints stay on this Mac, and passwords are stored in Keychain. The app contacts a configured P5 server only when you check a certificate or run a command, and contacts Archiware only when you request its installer or open a reference. It has no analytics, updater, account, or background service.")
             } icon: {
                 Image(systemName: "hand.raised.fill").foregroundStyle(.tint)
             }
@@ -158,6 +158,9 @@ struct P5CommandLabHelpView: View {
             HelpSection(title: "Remote nsdchat", icon: "point.3.connected.trianglepath.dotted") {
                 Text("Remote mode still runs the nsdchat binary installed on this Mac. It adds an awsock server argument containing the selected profile's host, port, username, and password.")
             }
+            HelpSection(title: "Install P5 and nsdchat", icon: "shippingbox.and.arrow.backward") {
+                Text("Choose Demo > Install Archiware P5 to check the standard nsdchat location, query the local P5 service with srvinfo lexxvers, and resolve the current macOS installer from Archiware's official download page. P5 Command Lab opens the vendor DMG in your browser; it does not silently install or update P5.")
+            }
             HelpSection(title: "Server information", icon: "info.circle") {
                 Text("Use the REST server-information recipe or the nsdchat lexxvers and uptime recipes to compare the two interfaces.")
             }
@@ -190,7 +193,7 @@ struct P5CommandLabHelpView: View {
                 Text("Profiles, custom recipes, imported command packs, and explicitly trusted certificate fingerprints are stored in this user's app preferences. Passwords are stored separately in macOS Keychain. P5 Command Lab does not collect analytics, diagnostics, or usage information.")
             }
             HelpSection(title: "Network activity", icon: "antenna.radiowaves.left.and.right") {
-                Text("Previewing and copying commands do not contact P5. Checking a certificate or running a recipe contacts only the configured server. Help, source, and support links contact their destinations only when selected.")
+                Text("Previewing and copying commands do not contact P5. Checking a certificate or running a recipe contacts only the configured server. Installer lookup contacts Archiware's official download page only after its window opens. Help, source, support, and download links contact their destinations only when selected.")
             }
             HelpSection(title: "Share carefully", icon: "exclamationmark.triangle") {
                 Text("Profiles, command previews with password reveal enabled, server responses, and exported transcripts can contain sensitive operational information. Redact them before screenshots, presentations, or issue reports.")

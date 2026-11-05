@@ -9,4 +9,5 @@ enum P5CommandLabLinks {
     static let p5RESTAPI = URL(string: "https://www.archiware.com/blog/redoc/p5_rest_api/awp5api.html")!
     static let p5CLIManual = URL(string: "https://support.archiware.com/downloads/cli.pdf")!
     static let p5Manuals = URL(string: "https://www.archiware.com/manuals/")!
+    static let p5Downloads = URL(string: "https://www.archiware.com/download-p5/")!
 }

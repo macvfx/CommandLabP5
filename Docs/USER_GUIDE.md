@@ -1,6 +1,6 @@
 # P5 Command Lab User Guide
 
-This is the canonical operating guide for P5 Command Lab 0.2.0.
+This is the canonical operating guide for P5 Command Lab 0.3.0.
 
 ## Purpose and safety boundary
 
@@ -132,6 +132,29 @@ Use the **Server version — nsdchat** and **Server uptime — nsdchat** recipes
 demonstrate `srvinfo lexxvers` and `srvinfo uptime` across these connection
 forms.
 
+### Install P5 and nsdchat
+
+Choose **Demo > Install Archiware P5…** to open the installer helper. It checks
+the standard `/usr/local/aw/bin/nsdchat` location. When present, it runs the
+read-only local command `srvinfo lexxvers` to distinguish an installed CLI from
+a reachable local P5 service and show the service version. It also reads
+Archiware's official download page to locate the current
+`awpst*-darwin.dmg` New Install link. The resolved filename and source are shown
+before the browser opens.
+
+When automatic lookup succeeds, **Download Installer…** is the blue default
+action. If lookup fails, **Open Archiware Download Page** becomes the blue
+default action instead. **Check Again** remains secondary in both states.
+
+Finding the executable does not prove that the local P5 service is running. A
+failed version query is reported separately and does not erase the positive
+nsdchat installation result.
+
+This is the full Archiware P5 installer, not a standalone nsdchat package. P5
+Command Lab does not mount the DMG, bypass the vendor's licence or choices, or
+run a privileged installation. If automatic lookup fails, use **Open Archiware
+Download Page** and select macOS New Install manually.
+
 ## Run and read a result
 
 Press **Run Read-only Command** after reviewing a built-in recipe. The output
@@ -173,7 +196,7 @@ recipe picker, then select a JSON pack. Imported recipes appear in a section
 named for that pack. Importing the same stable pack id again replaces its older
 version; **Remove Pack** removes the whole selected pack.
 
-Version 0.2.0 deliberately accepts only recipes marked `read-only`. REST
+Version 0.3.0 deliberately accepts only recipes marked `read-only`. REST
 recipes must use `GET`; reserved authentication/host headers, unknown template
 placeholders, absolute REST URLs, parent-path traversal, duplicate command
 UUIDs, and unsupported schema versions are rejected. Review the displayed
@@ -183,7 +206,10 @@ The repository includes
 [`P5-Read-Only-Comparisons.json`](../CommandPacks/P5-Read-Only-Comparisons.json)
 as an importable starting pack. See the
 [Command Pack Format](COMMAND_PACK_FORMAT.md) and
-[Command Catalog](COMMAND_CATALOG.md) for authoring and candidate details.
+[Command Catalog](COMMAND_CATALOG.md) for current authoring and candidate
+details. Future non-read-only candidates remain documentation-only in the
+[Write Command Pack Test and Verification Plan](WRITE_COMMAND_PACK_PLAN.md)
+until their safety and live-version evidence gates are satisfied.
 
 ## Transcript export
 
@@ -241,7 +267,8 @@ information before sharing.
   fingerprint is reviewed. Confirm a server upgrade, reinstall, or renewal
   before choosing **Trust the New Certificate**.
 - **nsdchat is missing:** verify the executable path. Remote CLI access still
-  requires a local `nsdchat` installation.
+  requires a local `nsdchat` installation. Use **Demo > Install Archiware P5…**
+  to inspect the standard path and open the official installer.
 - **Local awfile fails:** confirm the configured awfile service path matches the
   P5 installation.
 - **ArchiveEntry lookup returns no handle:** verify the P5 client name, exact

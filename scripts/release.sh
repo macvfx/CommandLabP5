@@ -2,11 +2,11 @@
 set -euo pipefail
 
 root_dir="${0:A:h:h}"
-release_root="$root_dir/Release"
+release_root="${P5_RELEASE_ROOT:-$root_dir/Release}"
 info_plist="$root_dir/Resources/Info.plist"
 version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$info_plist")"
 build="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$info_plist")"
-release_dir="$release_root/P5-Command-Lab-${version}+${build}"
+release_dir="$release_root/${version}-${build}"
 stage_dir="$release_dir/stage"
 app_source="$root_dir/Build/P5 Command Lab.app"
 dmg="$release_dir/P5.Command.Lab-${version}.dmg"

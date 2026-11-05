@@ -1,6 +1,6 @@
 # P5 Command Lab Command Pack Format
 
-P5 Command Lab 0.2.0 imports versioned JSON command packs. JSON is the
+P5 Command Lab 0.3.0 imports versioned JSON command packs. JSON is the
 executable interchange format; Markdown remains the review and documentation
 format. A pack is copied into the current user's app preferences after it
 passes validation. Re-importing the same `id` replaces the earlier pack.
@@ -81,4 +81,9 @@ must include an explicit effect, a before-state read, exact target identity,
 old and new values, an operator confirmation, and a durable receipt. A future
 example such as `Volume {volume} mode Readonly` must never share the current
 one-click read-only execution path.
+
+The candidate operations, proposed future effect classes, proof states,
+exclusions, and required test order are specified in the
+[Write Command Pack Test and Verification Plan](WRITE_COMMAND_PACK_PLAN.md).
+That plan is documentation only; it does not extend schema version 1.
 

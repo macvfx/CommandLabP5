@@ -37,19 +37,28 @@ approved server before adding them to the example pack:
 ## Deferred mutating candidates
 
 These are documentation candidates only and are not accepted by schema version
-1:
+1. The complete safety classification, command shapes, proof states, and test
+order are maintained in the
+[Write Command Pack Test and Verification Plan](WRITE_COMMAND_PACK_PLAN.md):
 
-- change one exact volume from its observed current mode to `Readonly`;
-- return a volume to an explicitly selected prior mode;
-- change an ArchiveEntry comment or supported metadata;
-- add entries to a restore selection; and
-- start inventory, label, archive, restore, or other jobs.
+- write archive-index and volume inventory files;
+- write an archive-index backup file;
+- change one exact Archive/TAPE volume from observed mode `Full` to
+  `Readonly`;
+- inventory a bounded jukebox range and monitor the resulting job;
+- change an existing ArchiveEntry metadata key;
+- stop or cancel one exact job; and
+- submit guided archive or restore work in a later workflow tier.
 
 For the requested volume example, the safe sequence is: read the exact volume,
 show its current mode, require the operator to select the exact target and
 `Readonly` value, preview the full command, confirm once, submit once, retain a
 receipt, and read the volume again. The CLI and REST write forms must be checked
 against the installed P5 version before implementation.
+
+Destructive operations such as entry masking, jukebox reset, archive-index
+restore, volume recycling, clip deletion, and wildcard mutations are excluded
+from the initial shared write pack.
 
 ## References
 

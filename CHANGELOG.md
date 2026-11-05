@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.0 — 2026-11-04
+
+- Added **Demo > Install Archiware P5…**, modelled on the dedicated installer
+  flow in Eclectic Light Updater. It detects the standard nsdchat path, reads
+  the local P5 service version with `srvinfo lexxvers`, and resolves only an
+  official HTTPS `awpst*-darwin.dmg` link from Archiware's current download
+  page.
+- Kept installation operator-controlled: the helper confirms before opening
+  the vendor installer and falls back to Archiware's stable download page
+  without silently downloading or installing P5.
+- Fixed automatic installer lookup for Archiware's live WordPress `&#038;`
+  query encoding and added the published P5 version to the lookup status and
+  download confirmation.
+- Made the blue default action state-dependent: download the detected installer
+  on success, or open Archiware's download page when automatic lookup fails;
+  **Check Again** remains secondary.
+- Added a documentation-only write-command test and verification plan covering
+  inventory and backup file writes, guarded volume-mode changes, jukebox jobs,
+  ArchiveEntry metadata, proof states, receipts, and destructive exclusions.
+
 ## 0.2.0 — 2026-11-04
 
 - Added import and local persistence for versioned JSON command packs.
