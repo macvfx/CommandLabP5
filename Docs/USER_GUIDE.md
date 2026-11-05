@@ -1,6 +1,6 @@
 # P5 Command Lab User Guide
 
-This is the canonical operating guide for P5 Command Lab 0.3.0.
+This is the canonical operating guide for P5 Command Lab 0.4.0.
 
 ## Purpose and safety boundary
 
@@ -29,9 +29,27 @@ The P5 Server panel contains:
 For documentation or rehearsal, use fictional values such as
 `p5.example.invalid`, `<username>`, and `<password>`.
 
-Press **New** to create a profile. Edit its fields, then press **Save**. Delete
-removes the selected profile and its associated Keychain password. At least one
-profile remains available.
+Press **New** to create a server profile. Edit its fields, then press **Save
+Profile**. **Delete Profile** is separated on the opposite side of the action
+row and removes the selected profile and its associated Keychain password. At
+least one profile remains available.
+
+## Run without a P5 server
+
+Create or select a profile, then select the **Demo Mode** checkbox in the P5
+Server panel. The live connection fields are replaced by the demo scenario
+controls; switching Demo Mode off restores the profile's live fields. Demo runs
+use the reserved fictional host `p5-demo.example.invalid` and do not use or
+update credentials. Select one of four scenarios: **Healthy Library**, **Busy
+Archive Week**, **Tape Needs Attention**, or **Archive Index Discovery**.
+
+The constructed command remains authentic enough to explain REST URLs and the
+three nsdchat connection forms. Press **Run Offline Demo** to generate a
+deterministic fictional result. The execution boundary accepts no URL, request,
+or executable path, so a demo run cannot contact a server, launch `nsdchat`,
+read a Keychain item, or inspect a certificate. The transcript labels both the
+command and result as simulated. Unsupported custom/imported recipes stop with
+an explicit error rather than a generic success.
 
 ### Password and Keychain status
 
@@ -196,7 +214,7 @@ recipe picker, then select a JSON pack. Imported recipes appear in a section
 named for that pack. Importing the same stable pack id again replaces its older
 version; **Remove Pack** removes the whole selected pack.
 
-Version 0.3.0 deliberately accepts only recipes marked `read-only`. REST
+Version 0.4.0 deliberately accepts only recipes marked `read-only`. REST
 recipes must use `GET`; reserved authentication/host headers, unknown template
 placeholders, absolute REST URLs, parent-path traversal, duplicate command
 UUIDs, and unsupported schema versions are rejected. Review the displayed
@@ -243,8 +261,9 @@ P5 Command Lab does not:
 - include an automatic updater, cloud service, or background service; or
 - run a command merely because it was selected or previewed.
 
-Running a recipe sends the constructed request or command to the configured P5
-server. Checking a certificate makes a TLS connection only to that configured
+Running a recipe from a live profile sends the constructed request or command
+to the configured P5 server. Offline demo runs do neither. Checking a
+certificate makes a TLS connection only to that configured
 host and port. Saved certificate fingerprints are public certificate metadata,
 remain in the local profile, and are not exported automatically. Support links
 open their public destinations only when selected.

@@ -1,5 +1,32 @@
 import Foundation
 
+public enum DemoScenario: String, Codable, CaseIterable, Identifiable, Sendable {
+    case healthyLibrary
+    case busyArchive
+    case tapeAttention
+    case indexDiscovery
+
+    public var id: String { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .healthyLibrary: return "Healthy Library"
+        case .busyArchive: return "Busy Archive Week"
+        case .tapeAttention: return "Tape Needs Attention"
+        case .indexDiscovery: return "Archive Index Discovery"
+        }
+    }
+
+    public var summary: String {
+        switch self {
+        case .healthyLibrary: return "Healthy services, available media, and completed archive activity."
+        case .busyArchive: return "Active archive jobs and higher pool utilization."
+        case .tapeAttention: return "A read-only tape and an offline volume make operational fields easy to explain."
+        case .indexDiscovery: return "Multiple indexes and a resolved ArchiveEntry handle support lookup demos."
+        }
+    }
+}
+
 public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
     public var id: UUID
     public var name: String
@@ -14,10 +41,12 @@ public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
     public var pinnedCertificateSHA256: String?
     public var pinnedCertificateHost: String?
     public var pinnedCertificatePort: Int?
+    public var isDemoMode: Bool
+    public var demoScenario: DemoScenario
 
     public init(
         id: UUID = UUID(),
-        name: String = "Demo P5 Server",
+        name: String = "P5 Server",
         host: String = "127.0.0.1",
         restPort: Int = 8000,
         nsdchatPort: Int = 9001,
@@ -28,7 +57,9 @@ public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
         awfileConnection: String? = nil,
         pinnedCertificateSHA256: String? = nil,
         pinnedCertificateHost: String? = nil,
-        pinnedCertificatePort: Int? = nil
+        pinnedCertificatePort: Int? = nil,
+        isDemoMode: Bool = false,
+        demoScenario: DemoScenario = .healthyLibrary
     ) {
         self.id = id
         self.name = name
@@ -43,6 +74,55 @@ public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
         self.pinnedCertificateSHA256 = pinnedCertificateSHA256
         self.pinnedCertificateHost = pinnedCertificateHost
         self.pinnedCertificatePort = pinnedCertificatePort
+        self.isDemoMode = isDemoMode
+        self.demoScenario = demoScenario
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, name, host, restPort, nsdchatPort, username, apiVersion, useHTTPS
+        case nsdchatPath, awfileConnection, pinnedCertificateSHA256, pinnedCertificateHost
+        case pinnedCertificatePort, isDemoMode, demoScenario
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.decode(UUID.self, forKey: .id)
+        name = try values.decode(String.self, forKey: .name)
+        host = try values.decode(String.self, forKey: .host)
+        restPort = try values.decode(Int.self, forKey: .restPort)
+        nsdchatPort = try values.decode(Int.self, forKey: .nsdchatPort)
+        username = try values.decode(String.self, forKey: .username)
+        apiVersion = try values.decode(String.self, forKey: .apiVersion)
+        useHTTPS = try values.decode(Bool.self, forKey: .useHTTPS)
+        nsdchatPath = try values.decode(String.self, forKey: .nsdchatPath)
+        awfileConnection = try values.decodeIfPresent(String.self, forKey: .awfileConnection)
+        pinnedCertificateSHA256 = try values.decodeIfPresent(String.self, forKey: .pinnedCertificateSHA256)
+        pinnedCertificateHost = try values.decodeIfPresent(String.self, forKey: .pinnedCertificateHost)
+        pinnedCertificatePort = try values.decodeIfPresent(Int.self, forKey: .pinnedCertificatePort)
+        isDemoMode = try values.decodeIfPresent(Bool.self, forKey: .isDemoMode) ?? false
+        demoScenario = try values.decodeIfPresent(DemoScenario.self, forKey: .demoScenario) ?? .healthyLibrary
+    }
+
+    public static var offlineDemo: ServerProfile {
+        ServerProfile(
+            name: "Offline Demo",
+            host: "p5-demo.example.invalid",
+            restPort: 8443,
+            nsdchatPort: 9001,
+            username: "demo-operator",
+            apiVersion: "v1",
+            useHTTPS: true,
+            isDemoMode: true
+        )
+    }
+
+    public var commandProfile: ServerProfile {
+        guard isDemoMode else { return self }
+        var fictional = Self.offlineDemo
+        fictional.id = id
+        fictional.name = name
+        fictional.demoScenario = demoScenario
+        return fictional
     }
 
     public var effectiveAWFileConnection: String {
@@ -228,8 +308,8 @@ public enum CommandPackError: LocalizedError, Equatable {
         case .missingPackIdentity: return "The command pack needs a non-empty id, title, and version."
         case .duplicateRecipeID: return "Every command in a pack must have a unique UUID."
         case .emptyRecipes: return "The command pack does not contain any commands."
-        case .unsafeRecipe(let name, let effect): return "“\(name)” is marked \(effect.rawValue). Version 0.2 imports read-only commands only."
-        case .nonGETRESTRecipe(let name): return "“\(name)” uses a REST method other than GET. Version 0.2 imports GET recipes only."
+        case .unsafeRecipe(let name, let effect): return "“\(name)” is marked \(effect.rawValue). This release imports read-only commands only."
+        case .nonGETRESTRecipe(let name): return "“\(name)” uses a REST method other than GET. This release imports GET recipes only."
         case .reservedHeader(let name, let header): return "“\(name)” cannot define the reserved \(header) header."
         case .invalidTemplate(let name, let detail): return "“\(name)” has an invalid template: \(detail)"
         case .invalidSourceURL(let value): return "The source URL is invalid: \(value)"

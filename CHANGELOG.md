@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 — 2026-11-04
+
+- Added saved offline demo profiles with Healthy Library, Busy Archive Week,
+  Tape Needs Attention, and Archive Index Discovery scenarios.
+- Added fictional, deterministic REST and nsdchat results for every built-in
+  recipe and every recipe in the supplied read-only comparison pack.
+- Kept authentic command construction visible while guaranteeing that an
+  offline demo run cannot open a network connection, launch `nsdchat`, read a
+  Keychain password, or inspect a certificate.
+- Added prominent simulated-command/result markers and a dedicated purple
+  offline-demo treatment to prevent demo output from being mistaken for live
+  server evidence.
+- Added backward-compatible profile decoding and regression coverage for the
+  complete demo matrix. Unsupported custom recipes stop explicitly instead of
+  inventing a successful response.
+- Simplified profile management to one **New** action and an in-editor **Demo
+  Mode** checkbox, with the primary **Save Profile** action visually separated
+  from destructive **Delete Profile**.
+
 ## 0.3.0 — 2026-11-04
 
 - Added **Demo > Install Archiware P5…**, modelled on the dedicated installer

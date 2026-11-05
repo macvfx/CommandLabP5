@@ -4,6 +4,7 @@ import P5CommandLabCore
 import UniformTypeIdentifiers
 
 enum CredentialState: Equatable {
+    case notRequired
     case missing
     case unsaved
     case stored
@@ -11,6 +12,7 @@ enum CredentialState: Equatable {
 
     var message: String {
         switch self {
+        case .notRequired: return "Offline demo — no credentials used"
         case .missing: return "No password stored"
         case .unsaved: return "Password changed — not stored yet"
         case .stored: return "Password stored in Keychain"
@@ -51,13 +53,16 @@ final class AppModel: ObservableObject {
         profiles = loadedProfiles
         profile = loadedProfiles[0]
         selectedProfileID = loadedProfiles[0].id
-        switch KeychainStore.loadPassword(for: loadedProfiles[0].id) {
+        let initialCredential: KeychainLoadResult = loadedProfiles[0].isDemoMode
+            ? .missing
+            : KeychainStore.loadPassword(for: loadedProfiles[0].id)
+        switch initialCredential {
         case .found(let storedPassword):
             password = storedPassword
             credentialState = .stored
         case .missing:
             password = ""
-            credentialState = .missing
+            credentialState = loadedProfiles[0].isDemoMode ? .notRequired : .missing
         case .failed(let status):
             password = ""
             credentialState = .error(KeychainStore.message(for: status))
@@ -82,8 +87,8 @@ final class AppModel: ObservableObject {
     func command() throws -> ConstructedCommand {
         try CommandBuilder.construct(
             recipe: selectedRecipe,
-            profile: profile,
-            password: password,
+            profile: profile.commandProfile,
+            password: profile.isDemoMode ? "demo-password" : password,
             values: values,
             cliConnection: cliConnection,
             revealPassword: revealPassword
@@ -94,6 +99,11 @@ final class AppModel: ObservableObject {
         guard let selected = profiles.first(where: { $0.id == id }) else { return }
         selectedProfileID = id
         profile = selected
+        if selected.isDemoMode {
+            password = ""
+            credentialState = .notRequired
+            return
+        }
         switch KeychainStore.loadPassword(for: id) {
         case .found(let storedPassword):
             password = storedPassword
@@ -108,12 +118,17 @@ final class AppModel: ObservableObject {
     }
 
     func setPasswordDraft(_ value: String) {
+        guard !profile.isDemoMode else { return }
         password = value
         credentialState = value.isEmpty ? .missing : .unsaved
     }
 
     @discardableResult
     func savePassword(reportToConsole: Bool = true) -> Bool {
+        guard !profile.isDemoMode else {
+            credentialState = .notRequired
+            return true
+        }
         switch KeychainStore.save(password: password, for: profile.id, label: profile.name) {
         case .saved:
             credentialState = .stored
@@ -138,6 +153,29 @@ final class AppModel: ObservableObject {
         selectProfile(newProfile.id)
     }
 
+    func setDemoMode(_ enabled: Bool) {
+        profile.isDemoMode = enabled
+        revealPassword = false
+        if enabled {
+            credentialState = .notRequired
+            append("Demo Mode enabled for “\(profile.name)”. Runs use fictional data and never contact a server or launch nsdchat.")
+            return
+        }
+
+        switch KeychainStore.loadPassword(for: profile.id) {
+        case .found(let storedPassword):
+            password = storedPassword
+            credentialState = .stored
+        case .missing:
+            password = ""
+            credentialState = .missing
+        case .failed(let status):
+            password = ""
+            credentialState = .error(KeychainStore.message(for: status))
+        }
+        append("Demo Mode disabled for “\(profile.name)”. Live server settings are active again.")
+    }
+
     func saveProfile() {
         if let index = profiles.firstIndex(where: { $0.id == profile.id }) {
             profiles[index] = profile
@@ -147,9 +185,13 @@ final class AppModel: ObservableObject {
         selectedProfileID = profile.id
         let passwordSaved = savePassword(reportToConsole: false)
         persistProfiles()
-        append(passwordSaved
+        if profile.isDemoMode {
+            append("Saved offline demo profile “\(profile.name)”. No credentials were stored.")
+        } else {
+            append(passwordSaved
                ? "Saved server profile “\(profile.name)” and its Keychain password."
                : "Saved server profile “\(profile.name)”, but the Keychain password could not be updated.")
+        }
     }
 
     func trustCertificate(_ fingerprint: String) {
@@ -199,7 +241,7 @@ final class AppModel: ObservableObject {
     func importCommandPack() {
         let panel = NSOpenPanel()
         panel.title = "Import Read-only Command Pack"
-        panel.message = "Choose a P5 Command Lab JSON pack. Version 0.2 accepts validated read-only commands only."
+        panel.message = "Choose a P5 Command Lab JSON pack. This release accepts validated read-only commands only."
         panel.allowedContentTypes = [.json]
         panel.allowsMultipleSelection = false
         guard panel.runModal() == .OK, let url = panel.url else { return }
@@ -253,23 +295,39 @@ final class AppModel: ObservableObject {
 
     func runConfirmed() {
         guard !isRunning else { return }
-        if credentialState == .unsaved {
+        if !profile.isDemoMode && credentialState == .unsaved {
             _ = savePassword(reportToConsole: false)
         }
-        if profile.useHTTPS && profile.hasPinnedCertificate && !profile.certificatePinMatchesEndpoint {
+        if !profile.isDemoMode && profile.useHTTPS && profile.hasPinnedCertificate && !profile.certificatePinMatchesEndpoint {
             append("ERROR  \(P5TLSFailure.pinBelongsToAnotherEndpoint.localizedDescription)")
             return
         }
         let built: ConstructedCommand
         do { built = try command() }
         catch { append("ERROR  \(error.localizedDescription)"); return }
+        let isDemoRun = profile.isDemoMode
+        let demoScenario = profile.demoScenario
+        let recipe = selectedRecipe
+        let runValues = values
+        let certificatePin = profile.certificatePinForCurrentEndpoint
 
         isRunning = true
-        append("COMMAND\n\(built.display)")
+        if isDemoRun {
+            append("SIMULATED COMMAND — NO SERVER OR PROCESS CONTACTED\n\(built.display)")
+        } else {
+            append("COMMAND\n\(built.display)")
+        }
         Task {
             do {
-                let result = try await CommandRunner.run(built, certificatePin: profile.certificatePinForCurrentEndpoint)
-                append("RESULT  \(result.status)\n\(result.output)")
+                let result: CommandResult
+                if isDemoRun {
+                    try await Task.sleep(for: .milliseconds(300))
+                    result = try DemoCommandRunner.run(recipe: recipe, values: runValues, scenario: demoScenario)
+                    append("SIMULATED RESULT — \(demoScenario.displayName)\nRESULT  \(result.status)\n\(result.output)")
+                } else {
+                    result = try await CommandRunner.run(built, certificatePin: certificatePin)
+                    append("RESULT  \(result.status)\n\(result.output)")
+                }
             } catch {
                 if case let P5TLSFailure.certificateChanged(expected, presented) = error {
                     certificateChangedDetail = "Trusted \(P5TLSFailure.short(expected)); the server presented \(P5TLSFailure.short(presented)). The connection was refused."

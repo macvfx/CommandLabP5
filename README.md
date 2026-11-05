@@ -5,11 +5,13 @@ explaining, saving, and running basic Archiware P5 REST API and `nsdchat`
 commands.
 
 It is intended for demonstrations, training, and repeatable read-only checks. A
-P5 server is not required to preview commands.
+P5 server is not required to preview commands or run the built-in offline demo.
 
 ## Current capabilities
 
 - P5 8 REST `v1` requests with editable HTTP/HTTPS host and port.
+- Saved offline demo profiles with four scenarios and deterministic fictional
+  REST/CLI results; demo runs perform no network or process activity.
 - Explicitly labelled REST and `nsdchat` command recipes.
 - Local direct, local `awfile`, and remote `awsock` CLI connection forms.
 - A Demo-menu installer helper that detects the standard `nsdchat` path,
@@ -32,7 +34,7 @@ P5 server is not required to preview commands.
 
 The supplied recipes are read-only. Custom recipes can describe other HTTP
 methods or CLI verbs, so inspect the constructed command before running one.
-Imported packs in 0.3.0 are more restrictive: every recipe must be explicitly
+Imported packs in 0.4.0 are more restrictive: every recipe must be explicitly
 classified read-only, and REST recipes must use `GET`.
 
 ## Requirements
@@ -41,7 +43,7 @@ classified read-only, and REST recipes must use `GET`.
 - Swift 5.10 or later for source builds.
 - A local `nsdchat` binary for CLI execution. REST preview and execution do not
   require `nsdchat`.
-- Network access to a P5 server only when a command is run.
+- Network access to a P5 server only when a command is run from a live profile.
 
 ## Build and test
 
@@ -74,7 +76,9 @@ Profiles and custom recipes stay in the current user's app preferences.
 Passwords are stored separately in macOS Keychain. A certificate fingerprint
 explicitly trusted by the operator is stored with its local server profile.
 Previewing or copying a command does not contact P5. Checking a certificate or
-running a recipe contacts only the configured server. Opening the installer
+running a recipe from a live profile contacts only the configured server.
+Offline demo runs never use the network, launch `nsdchat`, read a Keychain
+password, or inspect certificate trust. Opening the installer
 helper contacts Archiware's official download page to locate the current macOS
 DMG; the app does not download or install it silently. P5 Command Lab has no
 account, analytics, updater, telemetry, cloud service, or background service.

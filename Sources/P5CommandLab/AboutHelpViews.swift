@@ -29,7 +29,7 @@ struct AboutP5CommandLabView: View {
                 .frame(maxWidth: 390)
 
             Label {
-                Text("Server profiles and reviewed certificate fingerprints stay on this Mac, and passwords are stored in Keychain. The app contacts a configured P5 server only when you check a certificate or run a command, and contacts Archiware only when you request its installer or open a reference. It has no analytics, updater, account, or background service.")
+                Text("Server profiles and reviewed certificate fingerprints stay on this Mac, and live-profile passwords are stored in Keychain. The app contacts a configured P5 server only when you check a certificate or run a command from a live profile. Offline demo runs never use the network or launch nsdchat. The app contacts Archiware only when you request its installer or open a reference. It has no analytics, updater, account, or background service.")
             } icon: {
                 Image(systemName: "hand.raised.fill").foregroundStyle(.tint)
             }
@@ -133,13 +133,16 @@ struct P5CommandLabHelpView: View {
     private var quickStart: some View {
         Group {
             HelpSection(title: "1. Configure a server", icon: "server.rack") {
-                Text("Enter a fictional or real P5 host, REST and nsdchat ports, username, and API version. Enter the password once and use the key button or Save to store it in macOS Keychain.")
+                Text("Use New to create a profile. Leave Demo Mode off to enter a live P5 host and credentials, or select Demo Mode to work entirely offline. Live-profile passwords can be stored in macOS Keychain.")
             }
             HelpSection(title: "2. Choose a recipe", icon: "list.bullet.rectangle") {
                 Text("Every recipe is labelled REST or nsdchat. Required values appear below the picker, and the exact command updates before anything contacts the server.")
             }
             HelpSection(title: "3. Preview, then run", icon: "play.circle") {
                 Text("Inspect the constructed command and keep the password redacted during presentations. Built-in recipes are read-only. Custom recipes require an additional confirmation because the app cannot classify arbitrary commands.")
+            }
+            HelpSection(title: "Offline demo", icon: "sparkles.rectangle.stack") {
+                Text("Select Demo Mode in the P5 Server panel, then choose a scenario. The app shows an authentic fictional command and deterministic simulated result without contacting a server, launching nsdchat, reading Keychain credentials, or checking a certificate. Purple banners and transcript markers distinguish simulation from live evidence.")
             }
         }
     }
@@ -193,7 +196,7 @@ struct P5CommandLabHelpView: View {
                 Text("Profiles, custom recipes, imported command packs, and explicitly trusted certificate fingerprints are stored in this user's app preferences. Passwords are stored separately in macOS Keychain. P5 Command Lab does not collect analytics, diagnostics, or usage information.")
             }
             HelpSection(title: "Network activity", icon: "antenna.radiowaves.left.and.right") {
-                Text("Previewing and copying commands do not contact P5. Checking a certificate or running a recipe contacts only the configured server. Installer lookup contacts Archiware's official download page only after its window opens. Help, source, support, and download links contact their destinations only when selected.")
+                Text("Previewing, copying, and offline demo runs do not contact P5. Checking a certificate or running a recipe from a live profile contacts only the configured server. Installer lookup contacts Archiware's official download page only after its window opens. Help, source, support, and download links contact their destinations only when selected.")
             }
             HelpSection(title: "Share carefully", icon: "exclamationmark.triangle") {
                 Text("Profiles, command previews with password reveal enabled, server responses, and exported transcripts can contain sensitive operational information. Redact them before screenshots, presentations, or issue reports.")

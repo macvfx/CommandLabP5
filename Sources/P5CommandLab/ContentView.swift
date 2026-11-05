@@ -134,61 +134,112 @@ struct ContentView: View {
                         ForEach(model.profiles) { Text($0.name).tag($0.id) }
                     }
                     .frame(maxWidth: 360)
-                    Button("New", action: model.newProfile)
-                    Button("Save", action: model.saveProfile)
-                    Button("Delete", role: .destructive, action: model.deleteProfile)
-                    Spacer()
-                    Toggle("HTTPS", isOn: $model.profile.useHTTPS)
-                }
-                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
-                    GridRow {
-                        Text("Name")
-                        TextField("Demo P5 Server", text: $model.profile.name)
-                        Text("Host / IP")
-                        TextField("p5.example.invalid", text: $model.profile.host)
+                    Button(action: model.newProfile) {
+                        Label("New", systemImage: "plus")
                     }
-                    GridRow {
-                        Text("Username")
-                        TextField("admin", text: $model.profile.username)
-                        Text("Password")
-                        HStack(spacing: 6) {
-                            SecureField("Stored in Keychain", text: Binding(
-                                get: { model.password },
-                                set: { model.setPasswordDraft($0) }
-                            ))
-                            .onSubmit { model.savePassword() }
-                            Button {
-                                model.savePassword()
-                            } label: {
-                                Image(systemName: "key.fill")
-                            }
-                            .help("Store this password in macOS Keychain")
-                            .disabled(model.password.isEmpty && model.credentialState == .missing)
+                    Spacer()
+                }
+                HStack(alignment: .top) {
+                    Toggle(isOn: Binding(
+                        get: { model.profile.isDemoMode },
+                        set: { model.setDemoMode($0) }
+                    )) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Demo Mode")
+                                .fontWeight(.semibold)
+                            Text("Fictional presentation data — no real server, credentials, certificate, or nsdchat process.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
                     }
-                    GridRow {
-                        Text("REST port")
-                        TextField("8000", value: $model.profile.restPort, format: .number.grouping(.never))
-                        Text("nsdchat port")
-                        TextField("9001", value: $model.profile.nsdchatPort, format: .number.grouping(.never))
-                    }
-                    GridRow {
-                        Text("API version")
-                        TextField("v1", text: $model.profile.apiVersion)
-                        Text("nsdchat path")
-                        TextField("/usr/local/aw/bin/nsdchat", text: $model.profile.nsdchatPath)
-                    }
-                    GridRow {
-                        Text("Local awfile")
-                        TextField("awfile://usr/local/aw:lexxsrv", text: Binding(
-                            get: { model.profile.awfileConnection ?? "" },
-                            set: { model.profile.awfileConnection = $0 }
-                        ))
-                        .gridCellColumns(3)
+                    .toggleStyle(.checkbox)
+                    Spacer()
+                    if !model.profile.isDemoMode {
+                        Toggle("HTTPS", isOn: $model.profile.useHTTPS)
+                            .toggleStyle(.checkbox)
                     }
                 }
-                .textFieldStyle(.roundedBorder)
-                if model.profile.useHTTPS {
+                if model.profile.isDemoMode {
+                    HStack(alignment: .top, spacing: 14) {
+                        Image(systemName: "sparkles.rectangle.stack.fill")
+                            .font(.title2)
+                            .foregroundStyle(.purple)
+                        VStack(alignment: .leading, spacing: 7) {
+                            Text("OFFLINE DEMO · NO SERVER CONTACTED")
+                                .font(.headline.monospaced().weight(.heavy))
+                                .foregroundStyle(.purple)
+                            Text("Commands use the fictional p5-demo.example.invalid identity. Running a demo recipe never starts nsdchat, opens a network connection, reads Keychain credentials, or checks a certificate.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            HStack {
+                                Text("Profile name")
+                                TextField("Offline Demo", text: $model.profile.name)
+                                    .frame(maxWidth: 250)
+                                Text("Scenario")
+                                Picker("Scenario", selection: $model.profile.demoScenario) {
+                                    ForEach(DemoScenario.allCases) { scenario in
+                                        Text(scenario.displayName).tag(scenario)
+                                    }
+                                }
+                                .labelsHidden()
+                                .frame(maxWidth: 230)
+                            }
+                            Text(model.profile.demoScenario.summary)
+                                .font(.caption)
+                                .foregroundStyle(.white.opacity(0.72))
+                        }
+                        Spacer()
+                    }
+                    .padding(10)
+                    .background(.purple.opacity(0.1), in: RoundedRectangle(cornerRadius: 9))
+                    .overlay(RoundedRectangle(cornerRadius: 9).stroke(.purple.opacity(0.45)))
+                } else {
+                    Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+                        GridRow {
+                            Text("Name")
+                            TextField("P5 Server", text: $model.profile.name)
+                            Text("Host / IP")
+                            TextField("p5.example.invalid", text: $model.profile.host)
+                        }
+                        GridRow {
+                            Text("Username")
+                            TextField("admin", text: $model.profile.username)
+                            Text("Password")
+                            HStack(spacing: 6) {
+                                SecureField("Stored in Keychain", text: Binding(
+                                    get: { model.password },
+                                    set: { model.setPasswordDraft($0) }
+                                ))
+                                .onSubmit { model.savePassword() }
+                                Button { model.savePassword() } label: { Image(systemName: "key.fill") }
+                                    .help("Store this password in macOS Keychain")
+                                    .disabled(model.password.isEmpty && model.credentialState == .missing)
+                            }
+                        }
+                        GridRow {
+                            Text("REST port")
+                            TextField("8000", value: $model.profile.restPort, format: .number.grouping(.never))
+                            Text("nsdchat port")
+                            TextField("9001", value: $model.profile.nsdchatPort, format: .number.grouping(.never))
+                        }
+                        GridRow {
+                            Text("API version")
+                            TextField("v1", text: $model.profile.apiVersion)
+                            Text("nsdchat path")
+                            TextField("/usr/local/aw/bin/nsdchat", text: $model.profile.nsdchatPath)
+                        }
+                        GridRow {
+                            Text("Local awfile")
+                            TextField("awfile://usr/local/aw:lexxsrv", text: Binding(
+                                get: { model.profile.awfileConnection ?? "" },
+                                set: { model.profile.awfileConnection = $0 }
+                            ))
+                            .gridCellColumns(3)
+                        }
+                    }
+                    .textFieldStyle(.roundedBorder)
+                }
+                if !model.profile.isDemoMode && model.profile.useHTTPS {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: model.profile.hasPinnedCertificate ? "lock.shield.fill" : "lock.shield")
                             .foregroundStyle(model.profile.hasPinnedCertificate ? .green : .orange)
@@ -216,10 +267,19 @@ struct ContentView: View {
                     .padding(.top, 2)
                 }
                 HStack {
-                    Spacer()
+                    Button(role: .destructive, action: model.deleteProfile) {
+                        Label("Delete Profile", systemImage: "trash")
+                    }
+                    .disabled(model.profiles.count <= 1)
+                    Spacer(minLength: 24)
                     Label(model.credentialState.message, systemImage: credentialSymbol)
                         .font(.caption)
                         .foregroundStyle(credentialColor)
+                    Spacer(minLength: 24)
+                    Button(action: model.saveProfile) {
+                        Label("Save Profile", systemImage: "square.and.arrow.down")
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
             }
         }
@@ -326,11 +386,17 @@ struct ContentView: View {
                 .shadow(color: commandAccent.opacity(0.14), radius: 7)
 
                 HStack {
-                    Toggle("Reveal password in preview", isOn: $model.revealPassword)
-                        .toggleStyle(.checkbox)
+                    if !model.profile.isDemoMode {
+                        Toggle("Reveal password in preview", isOn: $model.revealPassword)
+                            .toggleStyle(.checkbox)
+                    } else {
+                        Label("Simulated output", systemImage: "sparkles")
+                            .font(.caption.bold())
+                            .foregroundStyle(.purple)
+                    }
                     Spacer()
                     Button("Copy", action: model.copyPreview)
-                    Button(model.isRunning ? "Running…" : (model.selectedRecipe.effectiveEffect == .readOnly ? "Run Read-only Command" : "Run Custom Command…"), action: model.requestRun)
+                    Button(model.isRunning ? "Running…" : runButtonTitle, action: model.requestRun)
                         .buttonStyle(.borderedProminent)
                         .tint(commandAccent)
                         .disabled(model.isRunning)
@@ -375,7 +441,13 @@ struct ContentView: View {
     }
 
     private var commandAccent: Color {
-        model.selectedRecipe.transport == .rest ? .cyan : .orange
+        if model.profile.isDemoMode { return .purple }
+        return model.selectedRecipe.transport == .rest ? .cyan : .orange
+    }
+
+    private var runButtonTitle: String {
+        if model.profile.isDemoMode { return "Run Offline Demo" }
+        return model.selectedRecipe.effectiveEffect == .readOnly ? "Run Read-only Command" : "Run Custom Command…"
     }
 
     private var cliConnectionExplanation: String {
@@ -391,6 +463,7 @@ struct ContentView: View {
 
     private var credentialColor: Color {
         switch model.credentialState {
+        case .notRequired: return .purple
         case .stored: return .green
         case .unsaved: return .orange
         case .missing: return .secondary
@@ -409,6 +482,7 @@ struct ContentView: View {
 
     private var credentialSymbol: String {
         switch model.credentialState {
+        case .notRequired: return "sparkles"
         case .stored: return "key.fill"
         case .unsaved: return "key.horizontal"
         case .missing: return "key.slash"

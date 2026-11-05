@@ -7,6 +7,12 @@
 - [x] Command picker labels every recipe REST or nsdchat.
 - [x] Local direct, local awfile, and remote awsock command construction is tested.
 - [x] REST authentication previews redact passwords by default.
+- [x] Every built-in and supplied comparison-pack recipe has a fictional demo
+  result for all four offline scenarios.
+- [x] Legacy saved profiles decode with demo mode disabled, and demo profiles
+  round-trip with their selected scenario.
+- [x] Unsupported demo recipes fail explicitly; the pure demo runner accepts no
+  URL request or executable path.
 - [x] Certificate pins are bound to the saved host and REST port.
 - [x] Fingerprints compare consistently with or without separators.
 - [x] Installer-link parsing accepts the official macOS filename pattern,
@@ -24,6 +30,12 @@
 - [x] Focus newest can be enabled and disabled.
 - [x] Command picker visibly labels every recipe REST or nsdchat.
 - [x] Local direct, local awfile, and remote awsock previews update correctly.
+- [ ] The Demo Mode checkbox hides live credentials and certificate controls;
+  clearing it restores the same profile's live fields.
+- [ ] Each demo scenario is visibly marked offline and produces a simulated
+  command/result without P5 running or `nsdchat` installed.
+- [ ] Switching between demo and live profiles never carries a demo credential,
+  certificate decision, or simulated result into live execution.
 - [x] About shows icon, version/build, privacy summary, Help, User Guide, and website.
 - [ ] Help opens from the Help menu and Command-Question Mark.
 - [x] Help topic switching and Done work without opening an external page.
@@ -55,7 +67,7 @@ place real server details in screenshots, issues, fixtures, or this repository.
 ## Future write-pack evidence gate
 
 These items apply before any schema version 2 write pack is import-enabled.
-They are planning gates, not claims about P5 Command Lab 0.3.0:
+They are planning gates, not claims about P5 Command Lab 0.4.0:
 
 - [ ] Every candidate has reached at least **Static-validated** in the
   [Write Command Pack Test and Verification Plan](WRITE_COMMAND_PACK_PLAN.md).
