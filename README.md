@@ -45,6 +45,20 @@ classified read-only, and REST recipes must use `GET`.
   require `nsdchat`.
 - Network access to a P5 server only when a command is run from a live profile.
 
+## Optional local P5 test server
+
+For disposable live REST and CLI testing on an Apple-silicon Mac, see
+[P5 Local Lab Setup](https://github.com/macvfx/P5-local-lab-setup). It builds
+the official Intel Linux P5 container locally, restricts P5 to a dedicated
+fixture folder and localhost port, and supports multiple isolated instances.
+The Apple `container` workflow is tested on macOS 27.2; the included Docker
+alternative remains explicitly untested.
+
+P5 Command Lab does not create, licence, start, stop, or delete these servers.
+Add a running lab instance as an ordinary live server profile. Unlicensed P5
+instances can answer useful read-only commands; a vendor trial is optional for
+tests that create indexes, plans, archives, or restores.
+
 ## Build and test
 
 ```sh
