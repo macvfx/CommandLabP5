@@ -109,6 +109,7 @@ redact them before sharing.
 - [Command Catalog and Candidates](Docs/COMMAND_CATALOG.md)
 - [Write Command Pack Test and Verification Plan](Docs/WRITE_COMMAND_PACK_PLAN.md)
 - [Example Read-only Comparison Pack](CommandPacks/P5-Read-Only-Comparisons.json)
+- [Optional local P5 test server](https://github.com/macvfx/P5-local-lab-setup)
 - [Changelog](CHANGELOG.md)
 - [Issue tracker](https://github.com/macvfx/CommandLabP5/issues)
 - [code.matx.ca](https://code.matx.ca)
