@@ -52,7 +52,7 @@ For disposable live REST and CLI testing on an Apple-silicon Mac, see
 the official Intel Linux P5 container locally, restricts P5 to a dedicated
 fixture folder and localhost port, and supports multiple isolated instances.
 The Apple `container` workflow is tested on macOS 27.2; the included Docker
-alternative remains explicitly untested.
+alternative is untested.
 
 P5 Command Lab does not create, licence, start, stop, or delete these servers.
 Add a running lab instance as an ordinary live server profile. Unlicensed P5
