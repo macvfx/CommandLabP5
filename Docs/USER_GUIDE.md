@@ -1,6 +1,6 @@
 # P5 Command Lab User Guide
 
-This is the canonical operating guide for P5 Command Lab 0.4.0.
+This is the canonical operating guide for P5 Command Lab 0.5.0 (build 7).
 
 ## Purpose and safety boundary
 
@@ -128,6 +128,15 @@ preview** is deliberately enabled.
 
 All CLI modes execute the `nsdchat` binary configured in the profile. They use
 direct process arguments; P5 Command Lab does not pass them through a shell.
+For live profiles whose host is anything other than `127.0.0.1`, Remote over
+awsock is selected and enforced. This prevents a stale Local selection from
+silently running the command against P5 on the Mac instead of the selected
+server.
+
+P5 Command Lab limits nsdchat to 15 seconds for connection, 30 seconds for
+login, 300 seconds for command completion, and 30 seconds while waiting for the
+next communication byte. A 360-second app deadline terminates a CLI process
+that still has not exited.
 
 ### Local direct
 
@@ -214,7 +223,7 @@ recipe picker, then select a JSON pack. Imported recipes appear in a section
 named for that pack. Importing the same stable pack id again replaces its older
 version; **Remove Pack** removes the whole selected pack.
 
-Version 0.4.0 deliberately accepts only recipes marked `read-only`. REST
+Version 0.5.0 deliberately accepts only recipes marked `read-only`. REST
 recipes must use `GET`; reserved authentication/host headers, unknown template
 placeholders, absolute REST URLs, parent-path traversal, duplicate command
 UUIDs, and unsupported schema versions are rejected. Review the displayed

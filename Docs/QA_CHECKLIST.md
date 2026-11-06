@@ -6,6 +6,8 @@
 - [x] Unit tests pass.
 - [x] Command picker labels every recipe REST or nsdchat.
 - [x] Local direct, local awfile, and remote awsock command construction is tested.
+- [x] Non-loopback profiles force remote awsock even if stale UI state says local.
+- [x] nsdchat receives bounded timeout variables and is terminated at the hard deadline.
 - [x] REST authentication previews redact passwords by default.
 - [x] Every built-in and supplied comparison-pack recipe has a fictional demo
   result for all four offline scenarios.
@@ -67,7 +69,7 @@ place real server details in screenshots, issues, fixtures, or this repository.
 ## Future write-pack evidence gate
 
 These items apply before any schema version 2 write pack is import-enabled.
-They are planning gates, not claims about P5 Command Lab 0.4.0:
+They are planning gates, not claims about P5 Command Lab 0.5.0:
 
 - [ ] Every candidate has reached at least **Static-validated** in the
   [Write Command Pack Test and Verification Plan](WRITE_COMMAND_PACK_PLAN.md).

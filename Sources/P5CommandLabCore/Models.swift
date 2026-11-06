@@ -130,6 +130,16 @@ public struct ServerProfile: Identifiable, Codable, Hashable, Sendable {
         return value.isEmpty ? "awfile://usr/local/aw:lexxsrv" : value
     }
 
+    /// Local CLI modes always target P5 on this Mac. Any other profile host must
+    /// use awsock so a stale UI selection cannot silently run the command locally.
+    public var requiresRemoteCLIConnection: Bool {
+        host.trimmingCharacters(in: .whitespacesAndNewlines) != "127.0.0.1"
+    }
+
+    public func resolvedCLIConnection(preferred: CLIConnection) -> CLIConnection {
+        requiresRemoteCLIConnection ? .remote : preferred
+    }
+
     public var hasPinnedCertificate: Bool {
         !(pinnedCertificateSHA256 ?? "").isEmpty
     }
@@ -442,6 +452,7 @@ public enum CommandLabError: LocalizedError, Equatable {
     case invalidURL
     case executableMissing(String)
     case processFailed(Int32, String)
+    case processTimedOut(Int)
     case invalidResponse
 
     public var errorDescription: String? {
@@ -451,6 +462,7 @@ public enum CommandLabError: LocalizedError, Equatable {
         case .invalidURL: return "The REST URL could not be constructed."
         case .executableMissing(let path): return "nsdchat was not found at \(path)."
         case .processFailed(let status, let message): return "nsdchat exited with status \(status): \(message)"
+        case .processTimedOut(let seconds): return "nsdchat was stopped after \(seconds) seconds because it did not finish."
         case .invalidResponse: return "The server returned an invalid response."
         }
     }

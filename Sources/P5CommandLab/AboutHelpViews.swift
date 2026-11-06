@@ -72,6 +72,12 @@ struct P5CommandLabHelpView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var topic: Topic = .quickStart
 
+    private var versionBuild: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "Development"
+        let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "—"
+        return "Version \(version) (\(build))"
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 12) {
@@ -83,6 +89,9 @@ struct P5CommandLabHelpView: View {
                     Text("P5 Command Lab Help").font(.title.bold())
                     Text("Preview and demonstrate P5 REST API and nsdchat commands")
                         .foregroundStyle(.secondary)
+                    Text(versionBuild)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
                 }
                 Spacer()
                 Button("Done") { dismiss() }
@@ -159,7 +168,10 @@ struct P5CommandLabHelpView: View {
                 Text("Local direct mode runs nsdchat with -c. Local awfile mode adds the editable awfile connection before -c, matching P5's local lexxsrv service form.")
             }
             HelpSection(title: "Remote nsdchat", icon: "point.3.connected.trianglepath.dotted") {
-                Text("Remote mode still runs the nsdchat binary installed on this Mac. It adds an awsock server argument containing the selected profile's host, port, username, and password.")
+                Text("Remote mode still runs the nsdchat binary installed on this Mac. It adds an awsock server argument containing the selected profile's host, port, username, and password. Any profile host other than 127.0.0.1 automatically selects and enforces Remote so a stale Local selection cannot run against P5 on this Mac.")
+            }
+            HelpSection(title: "CLI timeouts", icon: "timer") {
+                Text("Command Lab limits nsdchat to 15 seconds for connection, 30 seconds for login, 300 seconds for command completion, and 30 seconds while waiting for communication. A 360-second app deadline terminates a process that still has not exited.")
             }
             HelpSection(title: "Install P5 and nsdchat", icon: "shippingbox.and.arrow.backward") {
                 Text("Choose Demo > Install Archiware P5 to check the standard nsdchat location, query the local P5 service with srvinfo lexxvers, and resolve the current macOS installer from Archiware's official download page. P5 Command Lab opens the vendor DMG in your browser; it does not silently install or update P5.")

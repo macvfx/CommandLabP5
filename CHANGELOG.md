@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 (build 7) — 2026-11-06
+
+- Added bounded nsdchat connection, login, command, communication, and hard
+  process timeouts so an unavailable CLI endpoint cannot leave Command Lab
+  waiting indefinitely.
+- Enforced Remote over awsock for every profile host other than `127.0.0.1`.
+  Profile selection, host editing, command preview, and execution now agree,
+  preventing a stale Local selection from silently running against P5 on the
+  Mac.
+- Added an in-app remote-profile safety notice, disabled local CLI choices for
+  remote profiles, and documented the timeout and connection-selection rules.
+
 ## 0.4.0 — 2026-11-04
 
 - Added saved offline demo profiles with Healthy Library, Busy Archive Week,

@@ -38,6 +38,17 @@ final class CommandBuilderTests: XCTestCase {
         XCTAssertTrue(remote.display.contains("awsock:/demo:••••••@p5.example.test:9001"))
     }
 
+    func testRemoteProfileForcesAwsockWhenLocalWasPreferred() throws {
+        XCTAssertTrue(profile.requiresRemoteCLIConnection)
+        XCTAssertEqual(profile.resolvedCLIConnection(preferred: .local), .remote)
+        XCTAssertEqual(profile.resolvedCLIConnection(preferred: .localAWFile), .remote)
+
+        var loopback = profile
+        loopback.host = "127.0.0.1"
+        XCTAssertFalse(loopback.requiresRemoteCLIConnection)
+        XCTAssertEqual(loopback.resolvedCLIConnection(preferred: .localAWFile), .localAWFile)
+    }
+
     func testLocalAWFileServerInfoCommandsMatchP5CLIForm() throws {
         let versionRecipe = try XCTUnwrap(BuiltInRecipes.all.first { $0.name == "Server version — nsdchat" })
         let uptimeRecipe = try XCTUnwrap(BuiltInRecipes.all.first { $0.name == "Server uptime — nsdchat" })

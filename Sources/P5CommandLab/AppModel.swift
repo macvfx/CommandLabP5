@@ -70,6 +70,7 @@ final class AppModel: ObservableObject {
         customRecipes = loadedCustom
         importedPacks = loadedPacks.compactMap { try? CommandPackLoader.validate($0) }
         selectedRecipeID = BuiltInRecipes.all[0].id
+        if loadedProfiles[0].requiresRemoteCLIConnection { cliConnection = .remote }
         resetValues()
     }
 
@@ -85,12 +86,13 @@ final class AppModel: ObservableObject {
     }
 
     func command() throws -> ConstructedCommand {
-        try CommandBuilder.construct(
+        let commandProfile = profile.commandProfile
+        return try CommandBuilder.construct(
             recipe: selectedRecipe,
-            profile: profile.commandProfile,
+            profile: commandProfile,
             password: profile.isDemoMode ? "demo-password" : password,
             values: values,
-            cliConnection: cliConnection,
+            cliConnection: commandProfile.resolvedCLIConnection(preferred: cliConnection),
             revealPassword: revealPassword
         )
     }
@@ -99,6 +101,7 @@ final class AppModel: ObservableObject {
         guard let selected = profiles.first(where: { $0.id == id }) else { return }
         selectedProfileID = id
         profile = selected
+        enforceRemoteCLIConnection()
         if selected.isDemoMode {
             password = ""
             credentialState = .notRequired
@@ -224,7 +227,20 @@ final class AppModel: ObservableObject {
 
     func selectRecipe(_ id: UUID) {
         selectedRecipeID = id
+        enforceRemoteCLIConnection()
         resetValues()
+    }
+
+    var requiresRemoteCLIConnection: Bool {
+        profile.commandProfile.requiresRemoteCLIConnection
+    }
+
+    func setCLIConnection(_ connection: CLIConnection) {
+        cliConnection = requiresRemoteCLIConnection ? .remote : connection
+    }
+
+    func profileHostChanged() {
+        enforceRemoteCLIConnection()
     }
 
     func resetValues() {
@@ -295,6 +311,7 @@ final class AppModel: ObservableObject {
 
     func runConfirmed() {
         guard !isRunning else { return }
+        enforceRemoteCLIConnection()
         if !profile.isDemoMode && credentialState == .unsaved {
             _ = savePassword(reportToConsole: false)
         }
@@ -381,6 +398,10 @@ final class AppModel: ObservableObject {
             profiles[index] = profile
         }
         persistProfiles()
+    }
+
+    private func enforceRemoteCLIConnection() {
+        if requiresRemoteCLIConnection { cliConnection = .remote }
     }
 
     private static func connectionMessage(for error: Error) -> String {

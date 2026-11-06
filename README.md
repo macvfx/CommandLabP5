@@ -14,6 +14,8 @@ P5 server is not required to preview commands or run the built-in offline demo.
   REST/CLI results; demo runs perform no network or process activity.
 - Explicitly labelled REST and `nsdchat` command recipes.
 - Local direct, local `awfile`, and remote `awsock` CLI connection forms.
+- Automatic, enforced `awsock` selection for profiles not targeting
+  `127.0.0.1`, plus bounded CLI timeouts and process termination.
 - A Demo-menu installer helper that detects the standard `nsdchat` path,
   reads the local P5 service version with `srvinfo lexxvers`, resolves the
   current official macOS P5 DMG, and leaves installation to the vendor
@@ -34,7 +36,7 @@ P5 server is not required to preview commands or run the built-in offline demo.
 
 The supplied recipes are read-only. Custom recipes can describe other HTTP
 methods or CLI verbs, so inspect the constructed command before running one.
-Imported packs in 0.4.0 are more restrictive: every recipe must be explicitly
+Imported packs in 0.5.0 are deliberately restrictive: every recipe must be explicitly
 classified read-only, and REST recipes must use `GET`.
 
 ## Requirements

@@ -200,6 +200,7 @@ struct ContentView: View {
                             TextField("P5 Server", text: $model.profile.name)
                             Text("Host / IP")
                             TextField("p5.example.invalid", text: $model.profile.host)
+                                .onChange(of: model.profile.host) { _ in model.profileHostChanged() }
                         }
                         GridRow {
                             Text("Username")
@@ -348,10 +349,22 @@ struct ContentView: View {
                 }
 
                 if model.selectedRecipe.transport == .nsdchat {
-                    Picker("Connection", selection: $model.cliConnection) {
-                        ForEach(CLIConnection.allCases, id: \.self) { Text($0.rawValue).tag($0) }
+                    Picker("Connection", selection: Binding(
+                        get: { model.cliConnection },
+                        set: { model.setCLIConnection($0) }
+                    )) {
+                        ForEach(CLIConnection.allCases, id: \.self) { connection in
+                            Text(connection.rawValue)
+                                .tag(connection)
+                                .disabled(model.requiresRemoteCLIConnection && connection != .remote)
+                        }
                     }
                     .pickerStyle(.segmented)
+                    if model.requiresRemoteCLIConnection {
+                        Label("Remote profile — awsock is enforced so this command cannot run against P5 on this Mac.", systemImage: "lock.shield.fill")
+                            .font(.caption.bold())
+                            .foregroundStyle(.orange)
+                    }
                     Text(cliConnectionExplanation)
                         .font(.caption).foregroundStyle(.secondary)
                 }

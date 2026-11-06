@@ -1,6 +1,6 @@
 # P5 Command Lab Command Pack Format
 
-P5 Command Lab 0.4.0 imports versioned JSON command packs. JSON is the
+P5 Command Lab 0.5.0 imports versioned JSON command packs. JSON is the
 executable interchange format; Markdown remains the review and documentation
 format. A pack is copied into the current user's app preferences after it
 passes validation. Re-importing the same `id` replaces the earlier pack.

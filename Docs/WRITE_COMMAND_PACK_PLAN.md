@@ -5,7 +5,7 @@ pack. It records candidates, expected effects, test fixtures, verification,
 and exclusions before any schema version 2 implementation or live mutation
 testing begins.
 
-Nothing in this document is executable in P5 Command Lab 0.4.0. Command-pack
+Nothing in this document is executable in P5 Command Lab 0.5.0. Command-pack
 schema version 1 remains read-only and rejects these operations.
 
 ## Proof states
