@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+Build/
+Release/
+output/
+tmp/
+.signing-local/
+.swiftpm/
+Package.resolved
+P5Servers.json

@@ -1,0 +1,42 @@
+flowchart TB
+    classDef mac fill:#EAF4FF,stroke:#1769AA,color:#102A43,stroke-width:2px
+    classDef p5 fill:#E9F8EF,stroke:#247A45,color:#153B24,stroke-width:2px
+    classDef safe fill:#E9F8EF,stroke:#247A45,color:#153B24
+    classDef caution fill:#FFF4D6,stroke:#B7791F,color:#5F370E
+    classDef danger fill:#FDECEC,stroke:#C53030,color:#63171B
+
+    subgraph ControlMac["Operator Mac"]
+        Terminal["Terminal"]:::mac
+        CommandLab["P5 Command Lab"]:::mac
+        LocalNsdchat["Installed nsdchat binary"]:::mac
+        Curl["curl / URLSession"]:::mac
+    end
+
+    subgraph SameMac["P5 on this Mac"]
+        LocalP5["P5 application server"]:::p5
+    end
+
+    subgraph Network["Network"]
+        Socket["TCP socket<br/>awsock :9001"]:::caution
+        PlainHTTP["HTTP + Basic Auth<br/>readable on the path"]:::danger
+        TLS["HTTPS + Basic Auth<br/>encrypted TLS tunnel"]:::safe
+    end
+
+    subgraph RemoteMac["Remote P5 Mac or server"]
+        RemoteCLI["P5 CLI service"]:::p5
+        RemoteREST["P5 REST API"]:::p5
+    end
+
+    Terminal -->|"local command"| LocalNsdchat
+    CommandLab -->|"launches directly; no shell"| LocalNsdchat
+    LocalNsdchat -->|"default local server"| LocalP5
+    LocalNsdchat -->|"same-Mac named pipe: awfile"| LocalP5
+    LocalNsdchat -->|"remote connection string contains credentials"| Socket
+    Socket --> RemoteCLI
+
+    Terminal -->|"curl"| Curl
+    CommandLab -->|"URLSession"| Curl
+    Curl -->|"http://"| PlainHTTP
+    Curl -->|"https://"| TLS
+    PlainHTTP --> RemoteREST
+    TLS -->|"verify certificate or reviewed pin"| RemoteREST

@@ -1,0 +1,24 @@
+flowchart TB
+    Start{"Where is the target P5 server?"}
+    SameNeed{"Same Mac:<br/>which interface?"}
+    RemoteNeed{"Remote host:<br/>which interface?"}
+    LocalCLI["Local nsdchat<br/>default or awfile"]
+    LocalREST["REST"]
+    RemoteCLI["Remote nsdchat<br/>awsock"]
+    RemoteREST["REST"]
+    REST{"HTTPS configured?"}
+    HTTPS["Use HTTPS<br/>verify macOS trust or<br/>a reviewed fingerprint"]
+    HTTP["HTTP only: use solely on a bounded,<br/>isolated and trusted path;<br/>otherwise configure HTTPS or a secure tunnel"]
+    Tunnel["Trusted private network or VPN;<br/>do not assume TCP encrypts credentials"]
+
+    Start -->|"Local"| SameNeed
+    Start -->|"Remote"| RemoteNeed
+    SameNeed -->|"CLI"| LocalCLI
+    SameNeed -->|"REST"| LocalREST
+    RemoteNeed -->|"CLI"| RemoteCLI
+    RemoteNeed -->|"REST"| RemoteREST
+    RemoteCLI --> Tunnel
+    LocalREST --> REST
+    RemoteREST --> REST
+    REST -->|"Yes"| HTTPS
+    REST -->|"No"| HTTP
